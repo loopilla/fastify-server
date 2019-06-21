@@ -9,6 +9,17 @@
             "request": "attach",
             "name": "Attach",
             "port": 9229
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch via NPM",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "watch-debug"
+            ],
+            // "port": 9229
         }
     ]
 }

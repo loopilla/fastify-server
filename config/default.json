@@ -1,0 +1,17 @@
+{
+    "db": {
+        "host": "localhost",
+        "port": "27017",
+        "coll": "fastBase"
+    },
+    "auth": {
+        "jwt": {
+            "secret": "bigsecretmoment"
+        },
+        "google": {
+            "ApiKey": "AIzaSyDdrjdmHuU745IQ7Fcecvvlwk6urawxRmo",
+            "clientId": "974300005603-fi7ceio4kvspg87i89366od3r8eqkc4m.apps.googleusercontent.com",
+            "clientSecret": "O2Scf59yDx_zFYKC2l3tspAP"
+        }
+    }
+}

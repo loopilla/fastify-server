@@ -1,0 +1,20 @@
+/// <reference types="node" />
+/// <reference types="fastify" />
+import { IncomingMessage, Server, ServerResponse } from 'http';
+declare type Iopts = {
+    name: string;
+    scope: string[];
+    credentials: object;
+    callbackUri: string;
+    generateStateFunction?: any;
+    checkStateFunction?: any;
+    startRedirectPath?: string;
+};
+declare module 'fastify' {
+    interface FastifyInstance<HttpServer = Server, HttpRequest = IncomingMessage, HttpResponse = ServerResponse> {
+        getAccessTokenFromAuthorizationCodeFlow(args: any[]): any;
+        GOOGLE_CONFIGURATION: any;
+    }
+}
+declare const _default: import("fastify").Plugin<{}, {}, {}, Iopts>;
+export default _default;

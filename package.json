@@ -2,25 +2,38 @@
   "name": "fastify-server",
   "version": "0.0.1",
   "description": "Fastify server with auth and mongo",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node ./dist/app.js",
+    "start": "npm run serve",
+    "serve": "node dist/app.js",
+    "build": "npm run build-ts",
     "test": "NODE_ENV=test npx jest --verbose --runInBand",
-    "build": "tsc --sourceMap -p ./",
-    "dev": "ts-node --files ./src/index.ts"
+    "build-ts": "tsc --sourceMap -p ./",
+    "watch-ts": "tsc -w",
+    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\"",
+    "serve-debug": "nodemon --inspect dist/app.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/config": "0.0.34",
+    "@types/mongodb": "^3.1.28",
+    "@types/mongoose": "^5.5.6",
     "@types/node": "^12.0.7",
+    "@types/simple-oauth2": "^2.2.1",
+    "concurrently": "^4.1.0",
     "ts-node": "^8.2.0",
     "typescript": "^3.5.1"
   },
   "dependencies": {
     "config": "^3.1.0",
     "fastify": "^2.4.1",
+    "fastify-auth": "^0.5.0",
     "fastify-blipp-log": "^1.0.0",
+    "fastify-jwt": "^0.10.0",
+    "fastify-oauth2": "^2.0.0",
     "fastify-plugin": "^1.6.0",
-    "mongoose": "^5.5.13"
+    "mongoose": "^5.5.14",
+    "simple-get": "^3.0.3"
   }
 }

@@ -1,7 +1,16 @@
 import * as fastify from 'fastify';
 import { Server as HttpServer, IncomingMessage, ServerResponse } from 'http';
 import fastifyBlipp from 'fastify-blipp-log';
+import usersRoutes from './routes/users';
 import statusRoutes from './routes/test';
+import authRoutes from './routes/auth';
+import * as fastifyJwt from 'fastify-jwt';
+import * as fastifyAuth from 'fastify-auth';
+import * as config from 'config';
+import { JwtUtils } from './jwt.utils';
+import db from './db';
+// import oauth from './plugins/base';
+import basePlugin from './plugins/base';
 
 export const PORT = 3000;
 
@@ -15,8 +24,42 @@ export class Server {
 
     init = () => {
         const server = fastify({ logger: true });
-        server.register(fastifyBlipp);
-        server.register(statusRoutes);
+        // console.log(`Oauth: ${typeof oauth}`);
+        console.log(`Oauth: ${typeof basePlugin}`);
+        server
+            // .register(basePlugin)
+            .register(fastifyBlipp)
+            .register(db, {
+                url: `mongodb://${config.get('db.host')}:${config.get('db.port')}/${config.get('db.coll')}`,
+            })
+            .register(fastifyJwt, {
+                secret: config.get('auth.jwt.secret')
+            })
+            .register(basePlugin, {
+                name: 'googleOAuth2',
+                scope: ['profile'],
+                credentials: {
+                  client: {
+                    id: config.get('auth.google.clientId'),
+                    secret: config.get('auth.google.clientSecret')
+                  },
+                  auth: {
+                    authorizeHost: 'https://accounts.google.com',
+                    authorizePath: '/o/oauth2/v2/auth',
+                    tokenHost: 'https://www.googleapis.com',
+                    tokenPath: '/oauth2/v4/token'
+                  }
+                },
+                startRedirectPath: '/login/google',
+                callbackUri: 'http://localhost:3000/auth/google/callback'
+              })
+            .register(fastifyAuth)
+            .register(authRoutes)
+            .register(usersRoutes)
+            .register(statusRoutes)
+            ;
+
+        server.decorate('verifyJwt', JwtUtils.verifyJwt);
         this._server = server;
     }
 
@@ -31,8 +74,7 @@ export class Server {
 
     start = async () => {
         try {
-            await this._server.listen(PORT, "0.0.0.0");
-            
+            await this._server.listen(PORT, "0.0.0.0");       
             this._server.prettyPrintRoutes();
         } catch (error) {
             console.log(error);
