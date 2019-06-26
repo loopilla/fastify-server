@@ -2,6 +2,7 @@ import * as fastify from 'fastify';
 import * as fp from "fastify-plugin";
 import * as fastifyAuth from 'fastify-auth';
 import * as sget from 'simple-get';
+import { ServerResponse as HttpResponse } from 'http';
 
 import { IncomingMessage, ServerResponse } from 'http';
 import { JwtUtils } from '../jwt.utils';
@@ -30,7 +31,7 @@ export default fp(async (server, opts, next) => {
                 required: ['email', 'username']
             }
         },
-        handler: async (request: fastify.FastifyRequest<IncomingMessage, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>, reply: any) => {
+        handler: async (request: fastify.FastifyRequest<IncomingMessage, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>, reply: fastify.FastifyReply<HttpResponse>) => {
             const user = await server.db.models.user.create(request.body);
 
             console.log('Bela');
@@ -64,31 +65,30 @@ export default fp(async (server, opts, next) => {
     server.route({
         method: 'GET',
         url: '/auth/google/callback',
-        handler: async (request: fastify.FastifyRequest<IncomingMessage, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>, reply: any) => {
-            server.getAccessTokenFromAuthorizationCodeFlow(request, (err: any, result: any) => {
+        handler: async (request: fastify.FastifyRequest<IncomingMessage, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>, reply: fastify.FastifyReply<HttpResponse>) => {
+            server.getAccessTokenFromAuthorizationCodeFlow(request, (err: Error, result: any) => {
                 if (err) {
-                    reply.send(err)
-                    return
+                    reply.send(err);
+                    return;
                   }
               
                   sget.concat({
-                    url: 'https://www.googleapis.com/plus/v1/people/me',
+                    // url: 'https://www.googleapis.com/plus/v1/people/me',
+                    url: 'https://people.googleapis.com/v1/people/me',
                     method: 'GET',
                     headers: {
                       Authorization: 'Bearer ' + result.access_token
                     },
                     json: true
-                  }, function (err: any, res: any, data: any) {
+                  }, function (err: Error, res: fastify.FastifyReply<HttpResponse>, data: any) {
                     if (err) {
-                      reply.send(err)
-                      return
+                      reply.send(err);
+                      return;
                     }
-                    reply.send(data)
+                    // Here we have the tokens
+                    reply.send(data);
                   })                
             });
-            console.log(request.req.url);
-            reply.send({message: 'OK'});
-            // this.getAccessTokenFromAuthorizationCodeFlow();
         }
     });
     next();

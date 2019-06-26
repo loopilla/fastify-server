@@ -1,12 +1,11 @@
 import * as fp from 'fastify-plugin';
 import * as fastify from 'fastify';
 import * as oauth2 from 'simple-oauth2';
+import {  ServerResponse as HttpResponse } from 'http';
 
 import { Server, IncomingMessage, ServerResponse } from 'http';
 
-const defaultState = require('crypto').randomBytes(10).toString('hex')
-
-// const oauth2Module = require('simple-oauth2');
+const defaultState = require('crypto').randomBytes(10).toString('hex');
 
 const promisify = require('util').promisify || require('es6-promisify').promisify;
 
@@ -20,10 +19,10 @@ function defaultCheckStateFunction(state: any, callback: any) {
         return;
     }
     callback(new Error('Invalid state'));
+    
 }
 
 function basePlugin(fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>, options: fastify.RegisterOptions<Server, IncomingMessage, ServerResponse>, next?: fp.nextCallback) {
-    console.log('Stop here');
     if (typeof options.name !== 'string') {
         return next(new Error('options.name should be a string'));
     }
@@ -56,7 +55,10 @@ function basePlugin(fastify: fastify.FastifyInstance<Server, IncomingMessage, Se
     const checkStateFunction = options.checkStateFunction || defaultCheckStateFunction;
     const startRedirectPath = options.startRedirectPath;
 
-    function startRedirectHandler(request: any, reply: any) {
+    function startRedirectHandler(
+        request: fastify.FastifyRequest<IncomingMessage, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>,
+        reply:  fastify.FastifyReply<HttpResponse>
+    ) {
         const state = generateStateFunction();
 
         const authorizationUri = this[name].authorizationCode.authorizeURL({
@@ -83,7 +85,8 @@ function basePlugin(fastify: fastify.FastifyInstance<Server, IncomingMessage, Se
                 callback(err);
                 return;
             }
-            // cbk(fastify[name], code, callback)
+            // cbk(fastify[name], code, callback);
+            cbk(fastify.googleOAuth2, code, callback);
         })
     }
     const getAccessTokenFromAuthorizationCodeFlowPromiseified = promisify(getAccessTokenFromAuthorizationCodeFlowCallbacked);

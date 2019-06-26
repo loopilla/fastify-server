@@ -14,6 +14,10 @@ declare module 'fastify' {
             response: fastify.FastifyReply<HttpResponse>
         ): fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>;
         db: Db;
-        getAccessTokenFromAuthorizationCodeFlow(error: any, result: any): any;
+        getAccessTokenFromAuthorizationCodeFlow(
+            request: fastify.FastifyRequest<IncomingMessage, fastify.DefaultQuery, fastify.DefaultParams, fastify.DefaultHeaders, any>,
+            callback: (error: Error, result: any) => void
+        ): any;
+        googleOAuth2(args: any): any;
     }
 }

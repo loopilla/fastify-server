@@ -33,6 +33,8 @@
     "fastify-jwt": "^0.10.0",
     "fastify-oauth2": "^2.0.0",
     "fastify-plugin": "^1.6.0",
+    "fastify-swagger": "^2.4.0",
+    "googleapis": "^40.0.0",
     "mongoose": "^5.5.14",
     "simple-get": "^3.0.3"
   }

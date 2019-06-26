@@ -1,6 +1,7 @@
 import * as fastify from 'fastify';
 import { Server as HttpServer, IncomingMessage, ServerResponse } from 'http';
 import fastifyBlipp from 'fastify-blipp-log';
+import * as fastifySwagger from 'fastify-swagger';
 import usersRoutes from './routes/users';
 import statusRoutes from './routes/test';
 import authRoutes from './routes/auth';
@@ -27,6 +28,25 @@ export class Server {
         // console.log(`Oauth: ${typeof oauth}`);
         console.log(`Oauth: ${typeof basePlugin}`);
         server
+            .register(fastifySwagger, {
+                routePrefix: '/documentation',
+                exposeRoute: true,
+                swagger: {
+                    info: {
+                        title: 'Fastify API',
+                        description: 'Building a blazing fast REST API with Node.js, MongoDB, Fastify and Swagger',
+                        version: '1.0.0'
+                    },
+                    externalDocs: {
+                        url: 'https://swagger.io',
+                        description: 'Find more info here'
+                    },
+                    host: 'localhost',
+                    schemes: ['http'],
+                    consumes: ['application/json'],
+                    produces: ['application/json']
+                }
+            })
             // .register(basePlugin)
             .register(fastifyBlipp)
             .register(db, {
@@ -37,22 +57,31 @@ export class Server {
             })
             .register(basePlugin, {
                 name: 'googleOAuth2',
-                scope: ['profile'],
+                scope: [
+                    // 'gmail.readonly',
+                    // 'userinfo.email',
+                    'profile'
+                ],
+                // scope: [
+                //     'gmail.readonly',
+                //     'userinfo.email',
+                //     'userinfo.profile'
+                // ],
                 credentials: {
-                  client: {
-                    id: config.get('auth.google.clientId'),
-                    secret: config.get('auth.google.clientSecret')
-                  },
-                  auth: {
-                    authorizeHost: 'https://accounts.google.com',
-                    authorizePath: '/o/oauth2/v2/auth',
-                    tokenHost: 'https://www.googleapis.com',
-                    tokenPath: '/oauth2/v4/token'
-                  }
+                    client: {
+                        id: config.get('auth.google.clientId'),
+                        secret: config.get('auth.google.clientSecret')
+                    },
+                    auth: {
+                        authorizeHost: 'https://accounts.google.com',
+                        authorizePath: '/o/oauth2/v2/auth',
+                        tokenHost: 'https://www.googleapis.com',
+                        tokenPath: '/oauth2/v4/token'
+                    }
                 },
                 startRedirectPath: '/login/google',
                 callbackUri: 'http://localhost:3000/auth/google/callback'
-              })
+            })
             .register(fastifyAuth)
             .register(authRoutes)
             .register(usersRoutes)
@@ -74,7 +103,8 @@ export class Server {
 
     start = async () => {
         try {
-            await this._server.listen(PORT, "0.0.0.0");       
+            await this._server.listen(PORT, "0.0.0.0");
+            this._server.swagger();
             this._server.prettyPrintRoutes();
         } catch (error) {
             console.log(error);
