@@ -12,10 +12,9 @@
             "apiKey": "AIzaSyDdrjdmHuU745IQ7Fcecvvlwk6urawxRmo",
             "clientId": "974300005603-fi7ceio4kvspg87i89366od3r8eqkc4m.apps.googleusercontent.com",
             "clientSecret": "O2Scf59yDx_zFYKC2l3tspAP",
-            "redirectUrl": "http://localhost:3000/auth/callback",
+            "redirectUrl": "http://localhost:3000/auth/google/callback",
             "scopes": [
-                "https://www.googleapis.com/auth/blogger",
-                "https://www.googleapis.com/auth/calendar"
+                "profile"
             ]
         }
     }

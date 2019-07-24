@@ -12,6 +12,7 @@ import { JwtUtils } from './jwt.utils';
 import db from './db';
 // import oauth from './plugins/base';
 import basePlugin from './plugins/base';
+import myGoogle from './plugins/oauth2.google';
 
 export const PORT = 3000;
 
@@ -33,8 +34,8 @@ export class Server {
                 exposeRoute: true,
                 swagger: {
                     info: {
-                        title: 'Fastify API',
-                        description: 'Building a blazing fast REST API with Node.js, MongoDB, Fastify and Swagger',
+                        title: 'Fastify server boilerplate API',
+                        description: 'It\'s gonna be a platform I promise',
                         version: '1.0.0'
                     },
                     externalDocs: {
@@ -42,6 +43,7 @@ export class Server {
                         description: 'Find more info here'
                     },
                     host: 'localhost',
+                    port: 3000,
                     schemes: ['http'],
                     consumes: ['application/json'],
                     produces: ['application/json']
@@ -55,33 +57,37 @@ export class Server {
             .register(fastifyJwt, {
                 secret: config.get('auth.jwt.secret')
             })
-            .register(basePlugin, {
-                name: 'googleOAuth2',
-                scope: [
-                    // 'gmail.readonly',
-                    // 'userinfo.email',
-                    'profile'
-                ],
-                // scope: [
-                //     'gmail.readonly',
-                //     'userinfo.email',
-                //     'userinfo.profile'
-                // ],
-                credentials: {
-                    client: {
-                        id: config.get('auth.google.clientId'),
-                        secret: config.get('auth.google.clientSecret')
-                    },
-                    auth: {
-                        authorizeHost: 'https://accounts.google.com',
-                        authorizePath: '/o/oauth2/v2/auth',
-                        tokenHost: 'https://www.googleapis.com',
-                        tokenPath: '/oauth2/v4/token'
-                    }
-                },
+            .register(myGoogle, {
                 startRedirectPath: '/login/google',
-                callbackUri: 'http://localhost:3000/auth/google/callback'
+                callbackUri: 'http://localhost:3000/auth/google/callback'                ,
+                scope: [
+                    'gmail.readonly',
+                    'userinfo.email',
+                    'userinfo.profile'
+                ],
+                name: 'googleOAuth2',
             })
+            // .register(basePlugin, {
+            //     name: 'googleOAuth2',
+            //     scope: [
+            //         // 'profile'
+            //         'https://www.googleapis.com/auth/user.emails.read'
+            //     ],
+            //     credentials: {
+            //         client: {
+            //             id: config.get('auth.google.clientId'),
+            //             secret: config.get('auth.google.clientSecret')
+            //         },
+            //         auth: {
+            //             authorizeHost: 'https://accounts.google.com',
+            //             authorizePath: '/o/oauth2/v2/auth',
+            //             tokenHost: 'https://www.googleapis.com',
+            //             tokenPath: '/oauth2/v4/token'
+            //         }
+            //     },
+            //     startRedirectPath: '/login/google',
+            //     callbackUri: 'http://localhost:3000/auth/google/callback'
+            // })
             .register(fastifyAuth)
             .register(authRoutes)
             .register(usersRoutes)
